@@ -62,11 +62,7 @@ class BotHandlers:
                         text="Некорректный запрос. Пожалуйста, попробуйте снова."
                     )
         except Exception as e:
-            await self.bot.edit_message_text(
-                chat_id=callback_query.message.chat.id,
-                message_id=callback_query.message.message_id,
-                text=f"Произошла ошибка: {str(e)}\n{callback_query.data}"
-            )
+            pass
 
     async def _select_group_type(self, callback: types.CallbackQuery, keyboard_builder: InlineKeyboardBuilder):
         """Выбор года группы после выбора типа."""

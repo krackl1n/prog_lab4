@@ -79,6 +79,7 @@ class StankinAPI:
             response = httpx.get(url)
             response.raise_for_status()
             response_data = response.json()
+
         except httpx.HTTPError as e:
             print(f"HTTP error occurred: {e}")
         except Exception as e:

@@ -14,16 +14,18 @@ TOKEN = "7974861219:AAEOduwvVDcpxGivNA5hxQcFhYDaLKTxd4Y"
 
 dp = Dispatcher()
 
-api = StankinAPI()
-schedule_repository = ScheduleRepository(api)
-schedule_service = ScheduleService(api)
-handlers = BotHandlers(schedule_repository)
-
-dp.message.register(handlers.start, CommandStart())
-dp.message.register(handlers.schedule_start, F.text == 'Расписание')
-
 async def main() -> None:
     bot = Bot(token=TOKEN)
+
+    api = StankinAPI()
+    schedule_repository = ScheduleRepository(api)
+    schedule_service = ScheduleService(api)
+    handlers = BotHandlers(bot, schedule_repository)
+
+    dp.message.register(handlers.start, CommandStart())
+    dp.message.register(handlers.schedule_start, F.text == 'Расписание')
+    dp.callback_query.register(handlers.callback_schedule, lambda c: c.data.startswith('name_group_'))
+
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

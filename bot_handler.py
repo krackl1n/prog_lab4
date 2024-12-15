@@ -1,13 +1,9 @@
 from datetime import datetime, timedelta
-from typing import List
-from aiogram import Bot, Router, types, Dispatcher, F
+from aiogram import Bot, types
 from aiogram.types import InlineKeyboardButton, Message, KeyboardButton, ReplyKeyboardMarkup
-from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.fsm.storage.memory import MemoryStorage
 
-from models import Schedule, ScheduleStates
-from schedule_service import ScheduleService
+from core.schedule_service import ScheduleService
 
 days_of_week_names = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
 types_schedule = {"Lecture": "Лекция", "Seminar": "Семинар", "Laboratory": "Лаб. работа / подгруппа: ",}
@@ -21,9 +17,7 @@ class BotHandlers:
     async def start(self, message: Message):
         """Приветственное сообщение с выбором опций."""
         keyboard = [
-            [KeyboardButton(text='Расписание'), ], 
-            [KeyboardButton(text='Новости'), ],
-            [KeyboardButton(text='Вход'), KeyboardButton(text='GPT'), KeyboardButton(text='Настройки')] # , web_app=WebAppInfo(url="https://core.telegram.org/bots/webapps")
+            [KeyboardButton(text='Расписание'), ]
         ]
         markup = ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True) 
         await message.answer(

@@ -3,8 +3,8 @@ import json
 from datetime import date, datetime, timedelta
 from typing import Dict, List
 
-from models import Group, Schedule, ScheduleDate, ScheduleItem
-from stankin_api import StankinAPI
+from core.models import Group, Schedule, ScheduleDate, ScheduleItem
+from core.stankin_api import StankinAPI
 
 
 class ScheduleService():

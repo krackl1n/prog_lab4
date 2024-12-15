@@ -5,7 +5,7 @@ import httpx
 from urllib.parse import quote
 from datetime import datetime
 
-from models import Group, Schedule, ScheduleCategory, ScheduleDate, ScheduleDescription, ScheduleItem, ScheduleTime
+from core.models import Group, Schedule, ScheduleCategory, ScheduleDate, ScheduleDescription, ScheduleItem, ScheduleTime
 
 class StankinAPI:
     BASE_URL = "https://firebasestorage.googleapis.com/v0/b/stankinschedule.appspot.com/o"

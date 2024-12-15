@@ -7,8 +7,8 @@ from aiogram.filters import CommandStart
 from dotenv import load_dotenv
 
 from bot_handler import BotHandlers
-from schedule_service import ScheduleService
-from stankin_api import StankinAPI
+from core.schedule_service import ScheduleService
+from core.stankin_api import StankinAPI
 
 
 load_dotenv()

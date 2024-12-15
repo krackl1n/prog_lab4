@@ -1,24 +1,20 @@
+from datetime import datetime, timedelta
+from typing import List
 from aiogram import Bot, Router, types, Dispatcher, F
 from aiogram.types import InlineKeyboardButton, Message, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from schedule_repository import ScheduleRepository
+from models import Schedule, ScheduleStates
+from schedule_service import ScheduleService
 
-# Определяем состояния
-class ScheduleStates(StatesGroup):
-    SELECT_GROUP_TYPE = State()
-    SELECT_YEAR_GROUP = State()
-    SELECT_NUMBER_GROUP = State()
-    NAVIGATE_SCHEDULE = State()
-
-# Создаем обработчики
+days_of_week_names = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+types_schedule = {"Lecture": "Лекция", "Seminar": "Семинар", "Laboratory": "Лаб. работа / подгруппа: ",}
 class BotHandlers:
     version = "0.0.1"
 
-    def __init__(self, bot: Bot, schedule_service: ScheduleRepository):
+    def __init__(self, bot: Bot, schedule_service: ScheduleService):
         self.bot = bot
         self.schedule_service = schedule_service
 
@@ -85,7 +81,6 @@ class BotHandlers:
         number_group = callback.data.split("_")[1]
         data = await state.get_data()
 
-        # Формируем полное название группы
         group_name = f"{data['group_type']}-{data['year_group']}-{number_group}"
         await state.update_data(group_name=group_name)
 
@@ -96,9 +91,10 @@ class BotHandlers:
             InlineKeyboardButton(text=">", callback_data="navigate_1")
         )
 
-        # Получаем расписание для сформированного названия группы
+        schedule_text = self.generate_text_schedule(group_name)
+
         try:
-            schedule_text = self.schedule_service.get_schedule(group_name)
+            
             response_text = f"Расписание для группы {group_name}:\n{schedule_text}"
         except Exception as e:
             response_text = f"Ошибка при получении расписания для группы {group_name}: {e}"
@@ -112,9 +108,10 @@ class BotHandlers:
         data = await state.get_data()
         group_name = data["group_name"]
 
-        # Обновляем расписание в зависимости от действия
+        schedule = self.generate_text_schedule(group_name, action)
+
         try:
-            schedule = self.schedule_service.api.get_schedule(group_name, action)
+            
             response_text = f"Расписание для группы {group_name}:\n{schedule}"
         except Exception as e:
             response_text = f"Ошибка при навигации по расписанию для группы {group_name}: {e}"
@@ -127,3 +124,17 @@ class BotHandlers:
         )
 
         await callback.message.edit_text(response_text, reply_markup=keyboard_builder.as_markup())
+
+    def generate_text_schedule(self, group: str, action: int = 0):
+        schedule_to_day = self.schedule_service.get_schedule_to_day(group, action)
+        checkDate = datetime.now().date() + timedelta(days=action)
+        
+        message = f"📅Расписание {group}\n{checkDate} ({days_of_week_names[checkDate.weekday()]})\n\n"
+        
+        for item in schedule_to_day.items:
+            message += f"[{item.time.start} - {item.time.end}] {types_schedule[item.type]} {item.subgroup}:\
+            \n{item.title}.\
+            \nКабинет {item.classroom}.\
+            \nПреподаватель: {item.lecturer}\n\n"
+        return message
+        

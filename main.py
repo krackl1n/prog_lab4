@@ -5,7 +5,6 @@ from aiogram import F, Bot, Dispatcher
 from aiogram.filters import CommandStart
 
 from bot_handler import BotHandlers
-from schedule_repository import ScheduleRepository
 from schedule_service import ScheduleService
 from stankin_api import StankinAPI
 
@@ -18,9 +17,8 @@ async def main() -> None:
     bot = Bot(token=TOKEN)
 
     api = StankinAPI()
-    schedule_repository = ScheduleRepository(api)
     schedule_service = ScheduleService(api)
-    handlers = BotHandlers(bot, schedule_repository)
+    handlers = BotHandlers(bot, schedule_service)
 
     dp.message.register(handlers.start, CommandStart())
     dp.message.register(handlers.schedule_start, F.text == 'Расписание')

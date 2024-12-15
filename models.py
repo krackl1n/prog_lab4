@@ -1,6 +1,7 @@
 from dataclasses import asdict, dataclass
 from datetime import datetime
 import json
+from aiogram.fsm.state import StatesGroup, State
 from typing import List
 
 @dataclass
@@ -29,12 +30,6 @@ class Schedule:
     group: str
     items: List[ScheduleItem]
 
-    def to_dict(self):
-        return asdict(self)
-
-    def to_json(self):
-        return json.dumps(self.to_dict(), default=str, indent=4, ensure_ascii=False)
-
 @dataclass
 class ScheduleCategory:
     name: str
@@ -52,3 +47,9 @@ class Group:
     type: str
     year: str
     number: str
+
+class ScheduleStates(StatesGroup):
+    SELECT_GROUP_TYPE = State()
+    SELECT_YEAR_GROUP = State()
+    SELECT_NUMBER_GROUP = State()
+    NAVIGATE_SCHEDULE = State()

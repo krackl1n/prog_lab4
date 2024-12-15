@@ -24,7 +24,10 @@ async def main() -> None:
 
     dp.message.register(handlers.start, CommandStart())
     dp.message.register(handlers.schedule_start, F.text == 'Расписание')
-    dp.callback_query.register(handlers.callback_schedule, lambda c: c.data.startswith('name_group_'))
+    dp.callback_query.register(handlers.select_group_type, F.data.startswith("group_type_"))
+    dp.callback_query.register(handlers.select_year_group, F.data.startswith("year_"))
+    dp.callback_query.register(handlers.select_number_group, F.data.startswith("number_"))
+    dp.callback_query.register(handlers.navigate_schedule, F.data.startswith("navigate_"))
 
     await dp.start_polling(bot)
 

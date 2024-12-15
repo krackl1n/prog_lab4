@@ -59,7 +59,37 @@ class ScheduleService():
 
         return Schedule(schedule.timestamp, group, schedule_to_day_items)
     
-    def _date_range(self, schedule_date: ScheduleDate, check_date: date = datetime.now().date()) -> bool:
+    def _parse_date_range(self, date_str):
+        """
+        Парсит строку с датой или диапазоном дат и возвращает дату или кортеж дат.
+        """
+        if "-" in date_str:
+            start_date_str, end_date_str = date_str.split("-")
+            return datetime.strptime(start_date_str.strip(), "%Y.%m.%d").date(), datetime.strptime(end_date_str.strip(), "%Y.%m.%d").date()
+        return datetime.strptime(date_str.strip(), "%Y.%m.%d").date()
+
+    def _date_range(self, schedule_dates: List[ScheduleDate], check_date: date = datetime.now().date()) -> bool:
+        """
+        Проверяет, попадает ли заданная дата (check_date) в расписание (schedule_date).
+        """
+        for schedule_date in schedule_dates: 
+
+            frequency = schedule_date.frequency
+
+            if frequency == "once":
+                event_date = self._parse_date_range(schedule_date.date)
+                if event_date == check_date: return True
+
+            elif frequency == "every":
+                start_date, end_date = self._parse_date_range(schedule_date.date)
+                # Событие происходит каждую неделю в указанный день недели
+                if start_date <= check_date <= end_date and (check_date - start_date).days % 7 == 0: return True
+
+            elif frequency == "throughout":
+                start_date, end_date = self._parse_date_range(schedule_date.date)
+                # Событие происходит раз в две недели
+                delta_weeks = (check_date - start_date).days // 7
+                if start_date <= check_date <= end_date and delta_weeks % 2 == 0 and (check_date - start_date).days % 7 == 0: return True
         return False
 
 

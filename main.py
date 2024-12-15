@@ -1,15 +1,21 @@
 import asyncio
 import logging
+import os
 import sys
 from aiogram import F, Bot, Dispatcher
 from aiogram.filters import CommandStart
+from dotenv import load_dotenv
 
 from bot_handler import BotHandlers
 from schedule_service import ScheduleService
 from stankin_api import StankinAPI
 
 
-TOKEN = "7974861219:AAEOduwvVDcpxGivNA5hxQcFhYDaLKTxd4Y"
+load_dotenv()
+TOKEN = os.getenv("BOT_TOKEN")
+
+if not TOKEN:
+    raise ValueError("BOT_TOKEN не найден в .env файле")
 
 dp = Dispatcher()
 
@@ -22,10 +28,7 @@ async def main() -> None:
 
     dp.message.register(handlers.start, CommandStart())
     dp.message.register(handlers.schedule_start, F.text == 'Расписание')
-    dp.callback_query.register(handlers.select_group_type, F.data.startswith("group_type_"))
-    dp.callback_query.register(handlers.select_year_group, F.data.startswith("year_"))
-    dp.callback_query.register(handlers.select_number_group, F.data.startswith("number_"))
-    dp.callback_query.register(handlers.navigate_schedule, F.data.startswith("navigate_"))
+    dp.callback_query.register(handlers.callback_schedule, F.data.startswith("group_"))
 
     await dp.start_polling(bot)
 
